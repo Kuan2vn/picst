@@ -1,0 +1,27 @@
+{
+  "arm": "confidence",
+  "target_bands": "IRRG",
+  "source_reference_gsd_m": 0.09,
+  "target_gsd_m": 0.05,
+  "view_root": "gsd_views",
+  "gsd_view": "ratio_1p8",
+  "generic_view": "ratio_2",
+  "coverage": 0.5,
+  "lambda": 1.0,
+  "loss_mode": "hard",
+  "intervention": 1.0,
+  "scout": {
+    "variant": "source_bank",
+    "support": false,
+    "bank_veto": true,
+    "veto_floor": 1.0,
+    "fusion_gamma": 0.0,
+    "minimum_area_m2": 10.0,
+    "source_cache": "/tmp/gsd_dtst_84806_20010752/scout_source_cache_v1",
+    "source_confidence": 0.9,
+    "source_class_probability": 0.05,
+    "bank_veto_fraction": 0.25,
+    "homogeneous_probability": 0.8,
+    "source_logits_cache_dtype": "float16"
+  }
+}

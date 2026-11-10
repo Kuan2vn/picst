@@ -1,0 +1,17 @@
+{
+  "method": "s3t_sfda",
+  "roi_prob": 0.5,
+  "roi_num": 4,
+  "roi_scale": [
+    0.5,
+    1.0
+  ],
+  "roi_size": 256,
+  "history_every": 300,
+  "agree_weight": 2.0,
+  "disagree_weight": 0.5,
+  "contrast_weight": 0.5,
+  "contrast_temperature": 0.07,
+  "proj_dim": 256,
+  "proj_lr_mult": 10.0
+}

@@ -1,0 +1,10 @@
+{
+  "method": "stcgn",
+  "tau_cal": 0.1,
+  "p_ratio_start": 0.4,
+  "p_ratio_end": 0.9,
+  "p_ratio_iters": 5000,
+  "lambda_ent": 0.1,
+  "prototype_every": 1000,
+  "prototypes": "stcgn_prototypes.pt"
+}

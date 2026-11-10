@@ -1,0 +1,12 @@
+{
+  "method": "snd_srmp_aux",
+  "weight": 0.1,
+  "warmup_updates": 500,
+  "ramp_updates": 1000,
+  "temperature": 1.0,
+  "mask_ratio": 0.5,
+  "block_size": 16,
+  "hidden_dim": 256,
+  "depth": 4,
+  "weight_decay": 0.01
+}

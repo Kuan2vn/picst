@@ -1,0 +1,14 @@
+{
+  "report": ["peak", "endpoint"],
+  "selection_metric": "miou",
+  "class_scope": "all_six_classes",
+  "model": "EMA",
+  "selection": "target_validation_selected",
+  "evaluation_updates": [0, 3000, 6000, 9000, 12000, 15000, 18000, 20000],
+  "training_stop_updates": 20000,
+  "target_labels_used_for_gradients": false,
+  "target_labels_used_for_checkpoint_selection": true,
+  "per_class_and_secondary_metrics": "same checkpoint selected by mIoU6",
+  "tie_break": "earliest evaluated iteration",
+  "comparison": "same evaluation set, cadence, budget and seed in all arms"
+}

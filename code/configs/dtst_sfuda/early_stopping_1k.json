@@ -1,0 +1,12 @@
+{
+  "name": "target_validation_patience_1k_v2",
+  "metric": "miou6",
+  "min_updates": 6000,
+  "patience_evaluations": 3,
+  "below_peak_margin": 0.003,
+  "consecutive_decline_margin": 0.001,
+  "require_continuing_decline": false,
+  "eval_period": 1000,
+  "max_updates": 20000,
+  "target_labels_used_for_stopping": true
+}

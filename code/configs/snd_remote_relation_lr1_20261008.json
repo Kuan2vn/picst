@@ -1,0 +1,17 @@
+{
+  "method": "snd_remote_relation_lr1",
+  "rebuilder": "mrm",
+  "rebuilder_lr_mult": 1,
+  "weight": 1.0,
+  "warmup_updates": 100,
+  "prepare_updates": 100,
+  "ramp_updates": 300,
+  "temperature": 1.0,
+  "mask_ratio": 0.4,
+  "block_size": 1,
+  "hidden_dim": 512,
+  "depth": 2,
+  "soft_kl_weight": 0.0,
+  "weight_decay": 0.01,
+  "gradient_routing_note": "Native B2 relation encoder+fusion; no encoder gradient cap; main readout trainable"
+}

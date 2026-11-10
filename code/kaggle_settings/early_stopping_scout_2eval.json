@@ -1,0 +1,13 @@
+{
+  "name": "target_validation_scout_no_improvement_v1",
+  "mode": "no_improvement",
+  "metric": "miou6",
+  "min_updates": 1000,
+  "patience_evaluations": 2,
+  "below_peak_margin": 0.0,
+  "consecutive_decline_margin": 0.0,
+  "require_continuing_decline": false,
+  "eval_period": 1000,
+  "max_updates": 20000,
+  "target_labels_used_for_stopping": true
+}

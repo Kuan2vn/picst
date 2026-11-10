@@ -1,0 +1,12 @@
+{
+  "reference_commit": "0fbfe0ff6841d96953a6711ff4a33a4103a46c35",
+  "dynamic_teacher": false,
+  "query_start": 9,
+  "query_step": 3,
+  "max_interval": 30,
+  "points": 100,
+  "ema": 0.996,
+  "fixed_interval": 1,
+  "negative_weight": 0.0,
+  "reference": "St-CGN: mean teacher EMA 0.996 every update; no dynamic teacher, no negative learning"
+}
