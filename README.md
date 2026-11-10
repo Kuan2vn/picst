@@ -46,7 +46,7 @@ python download_data.py            # about 6.6 GB; fills ./data
 - `gsd_sfuda_b2_irrg_v1/`: PD IRRG-file target (3456 unlabelled train / 2016 labelled eval chips, 512 px) and the labelled VH source chips;
 - `siamseg_sfuda_b2_v1/`: the PD RGB target (same chips and labels);
 - `source_40000.pth`: the shared source model;
-- `snd_warm/`: the SND warm stage, used by `--method snd`. It is uploaded separately; until then, `--method snd` is unavailable.
+- `snd_warm/`: the SND warm stage (stable-sample banks and warm protocol), used by `--method snd`.
 
 The data derive from the ISPRS 2D Semantic Labeling benchmark. Use them for research only, under the ISPRS terms.
 
