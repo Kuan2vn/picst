@@ -14,8 +14,8 @@ All rows use the protocol in the README. Each cell gives the mIoU6 / mIoU5 peak,
 | SND (CVPR'24), author pipeline | pending | |
 | S3T-SFDA (TGRS) | pending | |
 | St-CGN (TGRS'26) | pending | |
-| **PIC-ST v1 (ours)** | **60.94 / 72.86 (5k)** | 60.49 (7k) |
-| PIC-ST revised (ours, `picst`) | running | |
+| PIC-ST v1 (ours) | 60.94 / 72.86 (5k) | 60.49 (7k) |
+| **PIC-ST revised (ours, `picst`)** | **61.60** (9k; cap evaluation was a new peak, so the run continued) | 61.46 (10k) |
 
 PIC-ST ablations (IRRG):
 
