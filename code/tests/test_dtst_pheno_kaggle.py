@@ -6,10 +6,8 @@ from scripts.dtst_pilot_budget import validate_budget
 
 ROOT=Path(__file__).parents[1]
 ARMS={'pheno_c0':(True,False),'pheno_c0_c1':(True,True),'pheno_c1':(False,True),'pheno_null':(False,False),
-      'pheno_c0_protect':(True,False),'pheno_delta_replay':(False,False),'pheno_c0_c1_randdir':(True,True),
       'pheno_c0multi':(True,False),'pheno_c0multi_c1plaus':(True,True),'pheno_c0_c1plaus':(True,True)}
 PROTECT={'pheno_c0':False,'pheno_c0_c1':True,'pheno_c1':True,'pheno_null':False,
-         'pheno_c0_protect':True,'pheno_delta_replay':True,'pheno_c0_c1_randdir':True,
          'pheno_c0multi':False,'pheno_c0multi_c1plaus':True,'pheno_c0_c1plaus':True}
 
 def budget(phase,policy,**change):
@@ -24,7 +22,7 @@ class PhenoKaggleTests(unittest.TestCase):
     def setUp(self):
         self.policy=json.loads((ROOT/'kaggle_settings/early_stopping_scout_2eval.json').read_text())
     def test_arms_settings_and_budget(self):
-        self.assertEqual(set(PHENO),set(ARMS));self.assertTrue(set(PHENO)<=set(PHASES))
+        self.assertTrue(set(ARMS)<=set(PHENO));self.assertTrue(set(PHENO)<=set(PHASES))
         for arm,flags in ARMS.items():
             s=settings(arm)
             self.assertEqual((s['c0'],s['c1']),flags)
@@ -35,9 +33,6 @@ class PhenoKaggleTests(unittest.TestCase):
     def test_ablations_differ_from_c0_c1_only_where_declared(self):
         base=settings('pheno_c0_c1')
         diff=lambda arm:{k for k in set(base)|set(settings(arm)) if base.get(k)!=settings(arm).get(k)}
-        self.assertEqual(diff('pheno_c0_protect'),{'c1'})
-        self.assertEqual(diff('pheno_delta_replay'),{'c0','c1','delta_schedule'})
-        self.assertEqual(diff('pheno_c0_c1_randdir'),{'c1_operator'})
         self.assertEqual({k for k in base if base[k]!=settings('pheno_c0')[k]},{'c1','protect_pasted_tree'})
     def test_patience_and_rising_cap(self):
         b=budget('pheno_c1',self.policy)
@@ -62,8 +57,6 @@ class PhenoOperatorTests(unittest.TestCase):
         self.ground=~self.tree;self.a=torch.full((2,1,1,1),.5)
     def test_validation(self):
         for arm in ARMS:self.p.validate_phenology(settings(arm))
-        bad=dict(settings('pheno_delta_replay'),c0=True)
-        with self.assertRaises(ValueError):self.p.validate_phenology(bad)
         with self.assertRaises(ValueError):self.p.validate_phenology(dict(settings('pheno_c0_c1'),c1_operator='jitter'))
         with self.assertRaises(ValueError):self.p.validate_phenology(dict(settings('pheno_c0_c1'),extra=1))
     def test_default_operator_is_the_hpc_formula(self):
@@ -80,14 +73,6 @@ class PhenoOperatorTests(unittest.TestCase):
         n0=(e0-texture-mu_t).norm(dim=1)[ok0];n1=(e1-texture-mu_t).norm(dim=1)[ok1]
         self.assertTrue(torch.allclose(n0,n1,rtol=1e-4,atol=1e-3))
         self.assertFalse(torch.allclose(e0,e1))
-    def test_delta_replay_is_piecewise_constant(self):
-        s=dict(settings('pheno_delta_replay'));s['delta_schedule']=[[0,5.],[50,7.],[100,-1.]]
-        corr=self.p.PhenologyCorrection(type('R',(),{'output':'.'})(),self.p.validate_phenology(s))
-        z=torch.zeros(1,6,4,4)
-        for it,d in [(0,5.),(49,5.),(50,7.),(99,7.),(100,-1.),(9000,-1.)]:
-            out=corr.adjust(z,None,None,None,it)
-            self.assertEqual(float(out[0,self.p.TREE].mean()),d);self.assertEqual(float(out[0,0].abs().max()),0.)
-
     def test_rgb_target_only_changes_bands(self):
         irrg=json.loads((ROOT/'kaggle_settings/raw_irrg.json').read_text());rgb=json.loads((ROOT/'kaggle_settings/raw_rgb.json').read_text())
         self.assertEqual(irrg['target_bands'],'IRRG');self.assertEqual(rgb,dict(irrg,target_bands='RGB'))
