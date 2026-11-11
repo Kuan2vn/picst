@@ -3,7 +3,7 @@
 Internal copy for the authors. Source-free domain adaptation from ISPRS Vaihingen (IRRG) to Potsdam, SegFormer-B2.
 Method details: [docs/METHODS.md](docs/METHODS.md). Results: [docs/RESULTS.md](docs/RESULTS.md).
 
-## 1. Install (Linux, one NVIDIA GPU with ≥ 12 GB free)
+## 1. Install (Linux, one NVIDIA GPU with ≥ 14 GB free; a 16 GB T4 works)
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
@@ -34,6 +34,7 @@ python run.py --method picst     --setting rgb
 
 - Outputs: `runs/<setting>/<experiment>/seed1/report/PEAK_AND_ENDPOINT.md`.
 - Re-running the same command resumes from the saved state.
+- `--hours H` pauses safely at the next evaluation after H hours (e.g. before a Kaggle session limit).
 - Evaluate a checkpoint:
 
 ```bash
