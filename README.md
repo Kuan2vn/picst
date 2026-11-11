@@ -28,7 +28,7 @@ python run.py --method dtst      --setting irrg
 python run.py --method snd       --setting irrg
 python run.py --method stable_st --setting irrg
 python run.py --method s3t_sfda  --setting irrg
-python run.py --method stcgn     --setting irrg   # runs source warm-up first
+python run.py --method stcgn     --setting irrg   # runs the St-CGN source warm-up first (see below)
 python run.py --method picst     --setting rgb
 ```
 
@@ -40,3 +40,14 @@ python run.py --method picst     --setting rgb
 ```bash
 python run.py --method eval --setting irrg --checkpoint <path/to/checkpoint.pth>
 ```
+
+## St-CGN: what the "source warm-up" is
+
+`--method stcgn` is a two-stage run, done automatically by the same command (`code/train_stcgn_warmup.py`, then the normal adaptation):
+
+1. **Warm-up (source side, labelled VH source chips, 2000 updates).** Starts from the shared `source_40000.pth`, which plays the role of the paper's pre-trained teacher. The student is trained with `L_src + L_inst/L_reg (contrastive, weighted 0.3/0.7) + L_kpd + L_kfd` (cross-entropy on source labels, prototype/region contrastive losses between two augmented views, and KD from an EMA teacher on predictions and decoder features). Output in `runs/irrg/<exp>/seed1/warmup/`:
+   - `stcgn_warmup.pth`: EMA-teacher weights, used as the **initial model of the adaptation stage** (instead of `source_40000.pth`);
+   - `stcgn_prototypes.pt`: per-class anchor prototypes (class-masked mean decoder features over all source chips), used to initialise the CbPCM prototypes.
+2. **Adaptation** (target PD, same protocol as every other method) starting from `stcgn_warmup.pth`.
+
+The warm-up is skipped on re-run if `warmup/WARMUP_COMPLETE.json` exists and its checksums match. Fixed hyper-parameters not given in the paper are listed in the header of `code/train_stcgn_warmup.py`.

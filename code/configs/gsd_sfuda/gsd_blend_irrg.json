@@ -1,1 +1,0 @@
-{"arm":"gsd","target_bands":"IRRG","source_reference_gsd_m":0.09,"target_gsd_m":0.05,"view_root":"gsd_views","gsd_view":"ratio_1p8","generic_view":"ratio_2","coverage":0.5,"lambda":1.0,"loss_mode":"blend","intervention":0.25}
