@@ -14,7 +14,7 @@ pip install -r requirements.txt
 ## 2. Setup data (private Hugging Face dataset `kuan2/picst-rs-sfda-data`, ~6.6 GB)
 
 ```bash
-huggingface-cli login
+hf auth login                  # paste a Hugging Face token that can read the dataset (ask the owner)
 python download_data.py        # fills ./data
 ```
 

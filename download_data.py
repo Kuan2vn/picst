@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Download the private data bundle from Hugging Face and unpack it into ./data (needs `huggingface-cli login`
+"""Download the private data bundle from Hugging Face and unpack it into ./data (needs `hf auth login`
 with an account that was granted access to the private dataset)."""
 import argparse
 import hashlib
