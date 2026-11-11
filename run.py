@@ -32,9 +32,9 @@ METHODS = {
     'picst_c0':  ('pheno', {'irrg': 'pheno_c0', 'rgb': 'pheno_c0multi'}),            # ablation: C0 only
     'picst_c1':  ('pheno', {'irrg': 'pheno_c1', 'rgb': 'pheno_c1'}),                 # ablation: C1 only
     'snd':       ('baseline', {'irrg': 'snd_author'}),                                # SND (CVPR'24), author pipeline
-    'stable_st': ('baseline', {'irrg': 'stable_st'}),                                 # Stable-ST (IJCV'26)
-    's3t_sfda':  ('baseline', {'irrg': 's3t_sfda'}),                                  # S3T-SFDA (TGRS), re-implemented
-    'stcgn':     ('baseline', {'irrg': 'stcgn'}),                                     # St-CGN (TGRS'26), re-implemented
+    'stable_st': ('baseline', {'irrg': 'stable_st', 'rgb': 'stable_st'}),             # Stable-ST (IJCV'26)
+    's3t_sfda':  ('baseline', {'irrg': 's3t_sfda', 'rgb': 's3t_sfda'}),               # S3T-SFDA (TGRS), re-implemented
+    'stcgn':     ('baseline', {'irrg': 'stcgn', 'rgb': 'stcgn'}),                     # St-CGN (TGRS'26), re-implemented
 }
 ROOTS = {'irrg': 'gsd_sfuda_b2_irrg_v1', 'rgb': 'siamseg_sfuda_b2_v1'}
 
@@ -58,7 +58,7 @@ def main():
         raise SystemExit(subprocess.call(cmd, cwd=CODE, env=env))
     runner, experiments = METHODS[a.method]
     if a.setting not in experiments:
-        ap.error(f'{a.method} is prepared for the IRRG main setting only')
+        ap.error(f'{a.method} is prepared for the IRRG setting only (its warm stage is IRRG)')
     experiment = experiments[a.setting]
     out = (a.output_dir/a.setting).resolve(); out.mkdir(parents=True, exist_ok=True)
     common = ['--workspace', str(CODE), '--settings', str(SETTINGS), '--data-root', str(root), '--source', str(source),
@@ -67,7 +67,8 @@ def main():
         cmd = [sys.executable, '-u', str(CODE/'scripts/run_dtst_kaggle.py'), '--experiment', experiment,
                '--target-bands', a.setting.upper()] + common
     else:
-        cmd = [sys.executable, '-u', str(CODE/'scripts/run_baseline_kaggle.py'), '--experiment', experiment] + common
+        cmd = [sys.executable, '-u', str(CODE/'scripts/run_baseline_kaggle.py'), '--experiment', experiment,
+               '--target-bands', a.setting.upper()] + common
         if experiment == 'snd_author':
             cmd += ['--warm', str(data/'snd_warm/seed1/warm'), '--warm-kind', 'snd_warm']
         if experiment == 'stcgn':

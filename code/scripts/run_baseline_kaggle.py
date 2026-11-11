@@ -23,6 +23,7 @@ from pathlib import Path
 from scripts.dtst_run_control import read_curve,write_json,stop_decision,digest,process_running
 from scripts.dtst_pilot_budget import RISING_CAP_RULE
 
+BANDS='IRRG'  # target bands; main() sets RGB for --target-bands RGB (the stable_st/s3t_sfda/stcgn arms only)
 BUDGET_NAME='baseline_irrg_budget_20261108_v1'
 SOURCE_SHA='10fbe026b5f2dcef331a99d97bab551f7cb0a2cf95feac2625b82ca3e3449d31'
 # experiment -> (trainer entry, stage directory)
@@ -46,10 +47,10 @@ def _protocol_ok(phase,protocol,source_sha=SOURCE_SHA):
         expected=dict(s3t_sfda=(True,1.0,.99,12),stcgn=(False,0.0,.996,1))[phase]
         return (_common_recipe(recipe) and recipe['warm']['meta'] is False and base.get('method')==phase and
                 protocol['source_checkpoint_sha256']==source_sha and protocol['gsd_study']['arm']=='raw' and
-                protocol['gsd_study']['target_bands']=='IRRG' and 'phenology' not in protocol and
+                protocol['gsd_study']['target_bands']==BANDS and 'phenology' not in protocol and
                 (dtst.get('dynamic_teacher'),dtst.get('negative_weight'),dtst.get('ema'),dtst.get('fixed_interval'))==expected)
     if (not _common_recipe(recipe) or protocol['source_checkpoint_sha256']!=SOURCE_SHA or
-            protocol['gsd_study']['arm']!='raw' or protocol['gsd_study']['target_bands']!='IRRG' or 'phenology' in protocol):
+            protocol['gsd_study']['arm']!='raw' or protocol['gsd_study']['target_bands']!=BANDS or 'phenology' in protocol):
         return False
     if phase in NEEDS_WARM:
         return (recipe['snd']['meta'] is True and 'dtst' not in protocol and
@@ -237,28 +238,28 @@ def command(args,run):
         return [sys.executable,'-u',str(args.workspace/entry),'--config',str(args.settings/'recipe_stable_st.json'),
                 '--dtst-config',str(args.settings/'dtst_stable_st.json'),'--source-checkpoint',str(args.source),
                 '--data-root',str(args.data_root),'--workers','2','--seed','1','--readout-lr-mult','1',
-                '--gsd-config',str(args.settings/'raw_irrg.json'),'--eval-period','1000','--output',str(run)]
+                '--gsd-config',str(args.settings/('raw_'+BANDS.lower()+'.json')),'--eval-period','1000','--output',str(run)]
     if args.experiment=='s3t_sfda':
         return [sys.executable,'-u',str(args.workspace/entry),'--config',str(args.settings/'recipe.json'),
                 '--dtst-config',str(args.settings/'dtst_s3t.json'),'--source-checkpoint',str(args.source),
                 '--data-root',str(args.data_root),'--workers','2','--seed','1','--readout-lr-mult','1',
-                '--gsd-config',str(args.settings/'raw_irrg.json'),'--baseline-config',str(args.settings/'s3t_sfda.json'),
+                '--gsd-config',str(args.settings/('raw_'+BANDS.lower()+'.json')),'--baseline-config',str(args.settings/'s3t_sfda.json'),
                 '--eval-period','1000','--output',str(run)]
     if args.experiment=='stcgn':  # ST stage starts from the St-CGN warm-up teacher (source-side stage)
         return [sys.executable,'-u',str(args.workspace/entry),'--config',str(args.settings/'recipe.json'),
                 '--dtst-config',str(args.settings/'dtst_stcgn.json'),'--source-checkpoint',str(run/'warmup/stcgn_warmup.pth'),
                 '--data-root',str(args.data_root),'--workers','2','--seed','1','--readout-lr-mult','1',
-                '--gsd-config',str(args.settings/'raw_irrg.json'),'--baseline-config',str(run/'stcgn_resolved.json'),
+                '--gsd-config',str(args.settings/('raw_'+BANDS.lower()+'.json')),'--baseline-config',str(run/'stcgn_resolved.json'),
                 '--eval-period','1000','--output',str(run)]
     if args.experiment=='snd_author':  # author SND: source weights + warm banks, LR clock from 0
         return [sys.executable,'-u',str(args.workspace/entry),'snd','--protocol','siamseg_sfuda_b2_v1','--snd-init','source',
                 '--config',str(args.settings/'recipe.json'),'--source-checkpoint',str(args.source),
                 '--warm-checkpoint',str(args.warm/'last.pth'),'--data-root',str(args.data_root),'--workers','2','--seed','1',
-                '--readout-lr-mult','1','--gsd-config',str(args.settings/'raw_irrg.json'),'--eval-period','1000','--output',str(run)]
+                '--readout-lr-mult','1','--gsd-config',str(args.settings/('raw_'+BANDS.lower()+'.json')),'--eval-period','1000','--output',str(run)]
     return [sys.executable,'-u',str(args.workspace/entry),'snd','--protocol','siamseg_sfuda_b2_v1',
             '--config',str(args.settings/'recipe.json'),'--source-checkpoint',str(args.source),
             '--warm-checkpoint',str(args.warm/'last.pth'),'--data-root',str(args.data_root),'--workers','2','--seed','1',
-            '--readout-lr-mult','1','--gsd-config',str(args.settings/'raw_irrg.json'),'--eval-period','1000','--output',str(run)]
+            '--readout-lr-mult','1','--gsd-config',str(args.settings/('raw_'+BANDS.lower()+'.json')),'--eval-period','1000','--output',str(run)]
 
 
 def main():
@@ -269,8 +270,14 @@ def main():
     p.add_argument('--warm',type=Path,help='snd_baseline only: DT-ST warm stage directory (contains last.pth and banks)')
     p.add_argument('--warm-kind',choices=('dtst_null','snd_warm'),default='dtst_null')
     p.add_argument('--source-root',type=Path,help='stcgn only: data root with the labelled source_train split')
+    p.add_argument('--target-bands',choices=('IRRG','RGB'),default='IRRG',help='RGB: stable_st, s3t_sfda, stcgn only (snd needs an IRRG warm stage)')
     p.add_argument('--output-root',type=Path,required=True);p.add_argument('--seconds',type=float,required=True)
-    args=p.parse_args();run=args.output_root/args.experiment/'seed1';run.mkdir(parents=True,exist_ok=True)
+    args=p.parse_args()
+    global BANDS,BUDGET_NAME
+    if args.target_bands=='RGB':
+        if args.experiment in NEEDS_WARM:p.error('snd experiments are IRRG only (their warm stage is IRRG)')
+        BANDS,BUDGET_NAME='RGB','baseline_rgb_budget_20261111_v1'
+    run=args.output_root/args.experiment/'seed1';run.mkdir(parents=True,exist_ok=True)
     entry,stage_name=EXPERIMENTS[args.experiment];stage=run/stage_name
     state_path=run/'RUN_STATE.json'
     def state(status,**extra):
@@ -307,7 +314,7 @@ def main():
         env=dict(os.environ,DTST_LOCAL_RUN_ID=token,OMP_NUM_THREADS='4',MKL_NUM_THREADS='4');env.pop('SLURM_JOB_ID',None)
         cmd=command(args,run)
         write_json(run/'KAGGLE_LAUNCH.json',dict(command=cmd,torch=torch.__version__,gpu=torch.cuda.get_device_name(0),batch=6,
-            session_seconds=args.seconds,target_bands='IRRG',source_sha256=digest(args.source),warm=warm,slurm=False))
+            session_seconds=args.seconds,target_bands=BANDS,source_sha256=digest(args.source),warm=warm,slurm=False))
         state('running',optimizer_progress='Check '+stage_name+'/training_history.jsonl')
         deadline=time.monotonic()+args.seconds;paused=finished=False;pause_boundary=None
         child=subprocess.Popen(cmd,cwd=args.workspace,env=env)

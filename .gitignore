@@ -5,3 +5,6 @@ __pycache__/
 *.pth
 *.pt
 .venv/
+results/
+results.zip
+.env
